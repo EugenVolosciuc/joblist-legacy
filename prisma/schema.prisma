@@ -1,0 +1,72 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id                 String        @id @default(uuid())
+  createdAt          DateTime      @default(now())
+  username           String
+  avatarURL          String?
+  role               UserRole      @default(JOB_SEEKER)
+  company            Company?      @relation(fields: [companyId], references: [id])
+  jobPostsCreated    JobPost[]     @relation(name: "JobPostsCreated")
+  applications       Application[]
+  favouritedJobPosts JobPost[]     @relation(name: "FavouritedJobPosts")
+  JobPost            JobPost?      @relation(fields: [jobPostId], references: [id])
+  jobPostId          String?
+  companyId          String?
+}
+
+model Company {
+  id           String    @id @default(uuid())
+  createdAt    DateTime  @default(now())
+  name         String
+  crunchbaseId String?
+  website      String?
+  logoURL      String?
+  description  String?
+  jobPosts     JobPost[]
+  recruiters   User[]
+}
+
+model JobPost {
+  id           String        @id @default(uuid())
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+  createdBy    User          @relation("JobPostsCreated", fields: [createdById], references: [id])
+  company      Company       @relation(fields: [companyId], references: [id])
+  favouritedBy User[]        @relation("FavouritedJobPosts", references: [id])
+  title        String
+  description  String
+  expiresAt    DateTime
+  isActive     Boolean       @default(true)
+  isSuperPost  Boolean       @default(false)
+  location     String?
+  createdById  String
+  companyId    String
+  applications Application[]
+  User         User[]
+}
+
+model Application {
+  id          String   @id @default(uuid())
+  createdAt   DateTime @default(now())
+  applicant   User     @relation(fields: [applicantId], references: [id])
+  jobPost     JobPost  @relation(fields: [jobPostId], references: [id])
+  applicantId String
+  jobPostId   String
+}
+
+enum UserRole {
+  ADMIN
+  RECRUITER
+  JOB_SEEKER
+}
