@@ -47,9 +47,13 @@ model JobPost {
   title        String
   description  String
   expiresAt    DateTime
-  isActive     Boolean       @default(true)
   isSuperPost  Boolean       @default(false)
   location     String?
+  minPay       Float?
+  maxPay       Float?
+  currency     Currency?
+  salaryType   SalaryType?
+  salaryPeriod SalaryPeriod?
   createdById  String
   companyId    String
   applications Application[]
@@ -69,4 +73,21 @@ enum UserRole {
   ADMIN
   RECRUITER
   JOB_SEEKER
+}
+
+enum Currency {
+  USD
+  EUR
+}
+
+enum SalaryType {
+  GROSS
+  NET
+}
+
+enum SalaryPeriod {
+  PER_HOUR
+  PER_WEEK
+  PER_MONTH
+  PER_YEAR
 }
