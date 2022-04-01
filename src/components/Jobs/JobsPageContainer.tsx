@@ -4,7 +4,7 @@ import { FaPlus } from "react-icons/fa";
 import { UserRole } from "@prisma/client";
 
 import { useAuth } from "services/User";
-import AddJobPostModal from "components/Jobs/AddJobPostModal";
+import AddEditJobPostModal from "components/Jobs/AddEditJobPostModal";
 import AddCompanyModal from "components/Jobs/AddCompanyModal";
 
 type Props = {
@@ -47,7 +47,7 @@ const JobsContainer: FC<Props> = ({ title }) => {
                 callback={toggleJobPostModal}
               />
             )}
-            <AddJobPostModal
+            <AddEditJobPostModal
               isOpen={jobPostModalIsOpen}
               onClose={toggleJobPostModal}
             />

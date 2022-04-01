@@ -1,4 +1,4 @@
-import { FC, useState } from "react";
+import { FC } from "react";
 import {
   UseFormRegister,
   FieldError,
@@ -11,22 +11,29 @@ import {
   FormErrorMessage,
   Input,
   Box,
-  Checkbox,
+  Switch,
+  Divider,
 } from "@chakra-ui/react";
 import Datepicker from "react-datepicker";
 import { format } from "date-fns";
 
-import { Inputs } from "components/Jobs/AddJobPostModal";
+import { Inputs } from "components/Jobs/AddEditJobPostModal";
 import { INPUT_SIZE } from "constants/INPUT";
-import Editor from "components/shared/Editor";
+import Editor, { emptyEditorLength } from "components/shared/Editor";
 
 type Props = {
   register: UseFormRegister<Inputs>;
   control: Control<Inputs, object>;
   errors: Record<keyof Inputs | string, FieldError>;
+  initialDescription?: string;
 };
 
-const GeneralInfoSection: FC<Props> = ({ register, control, errors }) => {
+const GeneralInfoSection: FC<Props> = ({
+  register,
+  control,
+  errors,
+  initialDescription,
+}) => {
   return (
     <>
       <FormControl mb="4" isInvalid={!!errors.title} isRequired>
@@ -49,11 +56,21 @@ const GeneralInfoSection: FC<Props> = ({ register, control, errors }) => {
           name="description"
           rules={{
             required: "Description is required",
+            validate: {
+              nothingTyped: (v) =>
+                v.length > emptyEditorLength || "Description is required",
+            },
           }}
           render={({ field }) => (
-            <Editor content={field.value} onChange={field.onChange} />
+            <Editor
+              initialEditorContent={initialDescription}
+              onChange={field.onChange}
+            />
           )}
         />
+        {errors.description && (
+          <FormErrorMessage>{errors.description.message}</FormErrorMessage>
+        )}
       </FormControl>
       <Box display="flex" flexWrap="wrap">
         <FormControl
@@ -62,7 +79,7 @@ const GeneralInfoSection: FC<Props> = ({ register, control, errors }) => {
           isRequired
           width="auto"
           flex="1"
-          marginRight={2}
+          marginRight={3}
         >
           <FormLabel htmlFor="location">Location</FormLabel>
           <Input
@@ -82,7 +99,7 @@ const GeneralInfoSection: FC<Props> = ({ register, control, errors }) => {
           isRequired
           width="auto"
           flex="1"
-          marginLeft={2}
+          marginLeft={3}
         >
           <FormLabel htmlFor="expiresAt">Expiration date</FormLabel>
           <Controller
@@ -100,12 +117,14 @@ const GeneralInfoSection: FC<Props> = ({ register, control, errors }) => {
             )}
           />
         </FormControl>
-        <FormControl mb="4">
-          <Checkbox id="includeSalary" {...register("includeSalary")}>
-            Include salary details
-          </Checkbox>
-        </FormControl>
       </Box>
+      <Divider mt="2" mb="6" />
+      <FormControl mb="4" display="flex" alignItems="center">
+        <FormLabel htmlFor="includeSalary" mb="0">
+          Include salary details
+        </FormLabel>
+        <Switch id="includeSalary" {...register("includeSalary")} />
+      </FormControl>
     </>
   );
 };

@@ -15,8 +15,6 @@
 }
 
 .draftjs-editor {
-  padding-left: var(--chakra-space-3);
-  padding-right: var(--chakra-space-3);
   min-height: 130px;
 }
 
@@ -32,4 +30,13 @@
 
 .draftjs-wrapper:focus-within .draftjs-toolbar {
   border-color: rgb(226, 232, 240);
+}
+
+.draftjs-wrapper.read-mode {
+  border: none;
+}
+
+.draftjs-wrapper:not(.read-mode) .draftjs-editor {
+  padding-left: var(--chakra-space-3);
+  padding-right: var(--chakra-space-3);
 }

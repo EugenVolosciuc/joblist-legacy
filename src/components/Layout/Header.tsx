@@ -14,6 +14,7 @@ import { FaSignOutAlt, FaCog, FaBookmark } from "react-icons/fa";
 
 import UserService, { useAuth } from "services/User";
 import { useRouter } from "next/router";
+import appConfig from "config/app";
 
 const NonAuthedMenu = () => (
   <Box as="nav">
@@ -99,7 +100,7 @@ const Header = () => {
     >
       <Link href="/" passHref>
         <Text as="a" fontWeight="bold" fontSize="2xl">
-          3D Job List
+          {appConfig.title}
         </Text>
       </Link>
       {user ? <AuthedMenu /> : <NonAuthedMenu />}

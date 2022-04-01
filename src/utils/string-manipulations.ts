@@ -5,3 +5,6 @@ export const truncate = (text: string, len: number) => {
     return text;
   }
 };
+
+export const capitalize = (txt: string) =>
+  txt.charAt(0).toUpperCase() + txt.slice(1);

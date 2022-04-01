@@ -1,13 +1,18 @@
 import type { NextApiRequest, NextApiResponse } from "next";
 
-import prisma from "config/prisma";
+import createJobPost from "api-handlers/job-posts/createJobPost";
+import notFound from "api-handlers/notFound";
+import { serverErrorHandler } from "utils/error-handlers";
 
 export default async (req: NextApiRequest, res: NextApiResponse) => {
-  if (req.method === "POST") {
-    const jobPost = await prisma.jobPost.create({ data: req.body });
-
-    return res.status(201).json(jobPost);
-  } else {
-    return res.status(404).json({ message: "Route not found" });
+  try {
+    if (req.method === "POST") {
+      return await createJobPost(req, res);
+    } else {
+      return notFound(res);
+    }
+  } catch (error) {
+    console.log("got to the error!!!!!!!!!!!!!!!!", error);
+    serverErrorHandler(res, error);
   }
 };

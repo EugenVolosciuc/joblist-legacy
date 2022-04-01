@@ -1,10 +1,10 @@
-import JobsContainer from "components/Jobs";
+import JobsPageContainer from "components/Jobs/JobsPageContainer";
 import Layout from "components/Layout";
 
 const JobsPage = () => {
   return (
     <Layout>
-      <JobsContainer />
+      <JobsPageContainer />
     </Layout>
   );
 };

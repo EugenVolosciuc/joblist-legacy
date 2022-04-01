@@ -1,5 +1,5 @@
 import { createContext, Dispatch, SetStateAction, useContext } from "react";
-import { User, UserRole } from "@prisma/client";
+import { Company, User, UserRole } from "@prisma/client";
 import { User as SupabaseUser } from "@supabase/supabase-js";
 import axios from "axios";
 
@@ -11,7 +11,7 @@ export enum AuthProviders {
 }
 
 export const authContext = createContext<{
-  user: User | null;
+  user: (User & { company?: Company }) | null;
   setUser: Dispatch<SetStateAction<User | null>>;
 }>({
   user: null,

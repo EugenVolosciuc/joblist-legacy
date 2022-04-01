@@ -8,6 +8,7 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
   if (req.method === "GET") {
     const user = await prisma.user.findUnique({
       where: { id: id as string },
+      include: { company: true },
     });
 
     res.json(user);

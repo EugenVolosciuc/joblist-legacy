@@ -2,7 +2,7 @@ import { ChakraProvider } from "@chakra-ui/react";
 import type { AppProps } from "next/app";
 import { User } from "@prisma/client";
 
-import theme from "config/theme";
+import appConfig from "config/app";
 import UserService, { AuthProvider } from "services/User";
 import { useEffect, useState } from "react";
 
@@ -27,7 +27,7 @@ function MyApp({ Component, pageProps }: AppProps) {
   }, []);
 
   return (
-    <ChakraProvider theme={theme}>
+    <ChakraProvider theme={appConfig.theme}>
       <AuthProvider value={{ user, setUser }}>
         <Component {...pageProps} />
       </AuthProvider>

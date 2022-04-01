@@ -38,26 +38,28 @@ model Company {
 }
 
 model JobPost {
-  id           String        @id @default(uuid())
-  createdAt    DateTime      @default(now())
-  updatedAt    DateTime      @updatedAt
-  createdBy    User          @relation("JobPostsCreated", fields: [createdById], references: [id])
-  company      Company       @relation(fields: [companyId], references: [id])
-  favouritedBy User[]        @relation("FavouritedJobPosts", references: [id])
-  title        String
-  description  String
-  expiresAt    DateTime
-  isSuperPost  Boolean       @default(false)
-  location     String?
-  minPay       Float?
-  maxPay       Float?
-  currency     Currency?
-  salaryType   SalaryType?
-  salaryPeriod SalaryPeriod?
-  createdById  String
-  companyId    String
-  applications Application[]
-  User         User[]
+  id            String        @id @default(uuid())
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+  createdBy     User          @relation("JobPostsCreated", fields: [createdById], references: [id])
+  company       Company       @relation(fields: [companyId], references: [id])
+  favouritedBy  User[]        @relation("FavouritedJobPosts", references: [id])
+  title         String
+  description   String
+  expiresAt     DateTime
+  isSuperPost   Boolean       @default(false)
+  isFixedSalary Boolean       @default(false)
+  location      String?
+  salary        Float?
+  minSalary     Float?
+  maxSalary     Float?
+  currency      Currency?
+  salaryType    SalaryType?
+  salaryPeriod  SalaryPeriod?
+  createdById   String
+  companyId     String
+  applications  Application[]
+  User          User[]
 }
 
 model Application {

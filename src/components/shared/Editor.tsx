@@ -1,11 +1,20 @@
 import { FC, useEffect, useState } from "react";
 import dynamic from "next/dynamic";
-import { convertToRaw, EditorState, Editor as EditorType } from "draft-js";
+import {
+  convertToRaw,
+  convertFromRaw,
+  EditorState,
+  Editor as EditorType,
+  RawDraftContentState,
+} from "draft-js";
 
 type Props = {
-  content: string;
-  onChange: Function;
+  onChange?: Function;
+  readMode?: boolean;
+  initialEditorContent?: string;
 };
+
+export const emptyEditorLength = 132;
 
 const toolbarOptions = {
   options: [
@@ -42,7 +51,6 @@ const toolbarOptions = {
     dropdownClassName: undefined,
   },
   fontSize: {
-    icon: "fontSize",
     options: [8, 9, 10, 11, 12, 14, 16, 18, 24, 30, 36, 48, 60, 72, 96],
     className: undefined,
     component: undefined,
@@ -88,16 +96,30 @@ const DraftJSEditor: typeof EditorType = dynamic(
   { ssr: false }
 );
 
-const Editor: FC<Props> = ({ onChange }) => {
+const Editor: FC<Props> = ({
+  initialEditorContent,
+  onChange,
+  readMode = false,
+}) => {
   const [editorState, setEditorState] = useState<EditorState>();
 
   const handleEditorChange = (newEditorState: EditorState) => {
-    onChange(JSON.stringify(convertToRaw(newEditorState.getCurrentContent())));
-    setEditorState(newEditorState);
+    if (onChange) {
+      onChange(
+        JSON.stringify(convertToRaw(newEditorState.getCurrentContent()))
+      );
+      setEditorState(newEditorState);
+    }
   };
 
   useEffect(() => {
-    setEditorState(EditorState.createEmpty());
+    setEditorState(
+      initialEditorContent
+        ? EditorState.createWithContent(
+            convertFromRaw(JSON.parse(initialEditorContent))
+          )
+        : EditorState.createEmpty()
+    );
   }, []);
 
   if (!editorState) return null;
@@ -109,8 +131,10 @@ const Editor: FC<Props> = ({ onChange }) => {
       onEditorStateChange={handleEditorChange}
       toolbarClassName="draftjs-toolbar"
       editorClassName="draftjs-editor"
-      wrapperClassName="draftjs-wrapper"
+      wrapperClassName={`draftjs-wrapper ${readMode ? "read-mode" : ""}`}
       toolbar={toolbarOptions}
+      toolbarHidden={readMode}
+      readOnly={readMode}
     />
   );
 };
