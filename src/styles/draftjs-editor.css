@@ -1,0 +1,35 @@
+.draftjs-wrapper {
+  border-radius: var(--chakra-radii-sm);
+  border: 1px solid;
+  border-color: inherit;
+  outline: 2px solid transparent;
+  outline-offset: 2px;
+  transition-property: var(--chakra-transition-property-common);
+  transition-duration: var(--chakra-transition-duration-normal);
+}
+
+.draftjs-wrapper:focus-within {
+  z-index: 1;
+  border-color: #3182ce;
+  box-shadow: 0 0 0 1px #3182ce;
+}
+
+.draftjs-editor {
+  padding-left: var(--chakra-space-3);
+  padding-right: var(--chakra-space-3);
+  min-height: 130px;
+}
+
+.draftjs-toolbar {
+  border-bottom: 1px solid;
+  border-top: none;
+  border-left: none;
+  border-right: none;
+  border-color: inherit;
+  margin-bottom: 0;
+  transition: none;
+}
+
+.draftjs-wrapper:focus-within .draftjs-toolbar {
+  border-color: rgb(226, 232, 240);
+}

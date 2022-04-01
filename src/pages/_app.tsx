@@ -7,9 +7,9 @@ import UserService, { AuthProvider } from "services/User";
 import { useEffect, useState } from "react";
 
 import "react-datepicker/dist/react-datepicker.css";
-import "@uiw/react-md-editor/markdown-editor.css";
-import "@uiw/react-markdown-preview/markdown.css";
+import "react-draft-wysiwyg/dist/react-draft-wysiwyg.css";
 import "styles/date-picker.css";
+import "styles/draftjs-editor.css";
 
 function MyApp({ Component, pageProps }: AppProps) {
   const [user, setUser] = useState<User | null>(null);

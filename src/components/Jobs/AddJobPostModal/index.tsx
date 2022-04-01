@@ -64,6 +64,9 @@ const AddJobPostModal: FC<Props> = ({ isOpen, onClose }) => {
   };
 
   const includeSalary = watch("includeSalary");
+  const description = watch("description");
+
+  console.log("description", description);
 
   return (
     <Modal isOpen={isOpen} onClose={onClose} size="xl">

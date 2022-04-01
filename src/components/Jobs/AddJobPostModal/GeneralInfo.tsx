@@ -1,4 +1,4 @@
-import { FC } from "react";
+import { FC, useState } from "react";
 import {
   UseFormRegister,
   FieldError,
@@ -13,15 +13,12 @@ import {
   Box,
   Checkbox,
 } from "@chakra-ui/react";
-import dynamic from "next/dynamic";
-import rehypeSanitize from "rehype-sanitize";
 import Datepicker from "react-datepicker";
 import { format } from "date-fns";
 
 import { Inputs } from "components/Jobs/AddJobPostModal";
 import { INPUT_SIZE } from "constants/INPUT";
-
-const MDEditor = dynamic(() => import("@uiw/react-md-editor"), { ssr: false });
+import Editor from "components/shared/Editor";
 
 type Props = {
   register: UseFormRegister<Inputs>;
@@ -54,15 +51,7 @@ const GeneralInfoSection: FC<Props> = ({ register, control, errors }) => {
             required: "Description is required",
           }}
           render={({ field }) => (
-            <MDEditor
-              value={field.value}
-              onChange={field.onChange}
-              previewOptions={{
-                rehypePlugins: [[rehypeSanitize]],
-              }}
-              height={250}
-              preview="edit"
-            />
+            <Editor content={field.value} onChange={field.onChange} />
           )}
         />
       </FormControl>
