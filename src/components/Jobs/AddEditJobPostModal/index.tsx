@@ -29,6 +29,8 @@ import JobPostService from "services/JobPost";
 import appConfig from "config/app";
 import { useAuth } from "services/User";
 import JobPost from "components/Jobs/JobPost";
+import { convertFromRaw, EditorState } from "draft-js";
+import { truncate } from "utils/string-manipulations";
 
 type Props = {
   isOpen: boolean;
@@ -42,6 +44,7 @@ enum ModalMode {
 
 export type Inputs = {
   title: string;
+  shortDescription: string;
   description: string;
   location: string;
   expiresAt: Date;
@@ -67,6 +70,7 @@ const AddJobPostModal: FC<Props> = ({ isOpen, onClose }) => {
     watch,
     control,
     getValues,
+    reset,
     formState: { errors },
   } = useForm<Inputs>({
     shouldUnregister: false,
@@ -75,15 +79,24 @@ const AddJobPostModal: FC<Props> = ({ isOpen, onClose }) => {
     },
   });
 
-  console.log("user", user);
-
   const toggleMode = () =>
     setMode(mode === ModalMode.EDIT ? ModalMode.PREVIEW : ModalMode.EDIT);
 
   const onSubmit: SubmitHandler<Inputs> = async (data) => {
+    // Get plain text from description -> truncate -> remove line breaks
+    const shortDescription = truncate(
+      EditorState.createWithContent(
+        convertFromRaw(JSON.parse(data.description))
+      )
+        .getCurrentContent()
+        .getPlainText(),
+      50
+    ).replace(/(\r\n|\n|\r)/gm, "");
+
     const dataToSend: Partial<TJobPost> = {
       title: data.title,
       description: data.description,
+      shortDescription,
       location: data.location,
       expiresAt: data.expiresAt,
       createdById: user?.id,
@@ -107,12 +120,15 @@ const AddJobPostModal: FC<Props> = ({ isOpen, onClose }) => {
     try {
       setIsLoading(true);
       await JobPostService.createJobPost(dataToSend);
+      reset();
 
       toast({
         description: "Job post created",
         status: "success",
         ...appConfig.componentVariants.toast,
       });
+      onClose();
+
       setIsLoading(false);
     } catch (error) {
       setIsLoading(false);

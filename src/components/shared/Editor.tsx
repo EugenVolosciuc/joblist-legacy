@@ -5,7 +5,6 @@ import {
   convertFromRaw,
   EditorState,
   Editor as EditorType,
-  RawDraftContentState,
 } from "draft-js";
 
 type Props = {

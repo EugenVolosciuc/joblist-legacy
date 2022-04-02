@@ -1,5 +1,6 @@
 import { JobPost } from "@prisma/client";
 import axios from "axios";
+import queryClient from "config/react-query";
 import { QueryFunctionContext, useQuery } from "react-query";
 
 import { PaginatedPageQuery } from "types/misc";
@@ -7,6 +8,8 @@ import { PaginatedPageQuery } from "types/misc";
 export default class JobPostService {
   public static async createJobPost(jobPostData: Partial<JobPost>) {
     const { data } = await axios.post<JobPost>("/api/job-posts", jobPostData);
+
+    queryClient.invalidateQueries("/api/job-posts");
 
     return data;
   }
