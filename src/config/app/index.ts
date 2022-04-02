@@ -1,7 +1,7 @@
 import componentVariants, {
   ToastConfig,
   ToastVariant,
-} from "config/components";
+} from "config/app/components";
 import * as themes from "config/themes";
 
 export interface AppConfig {
