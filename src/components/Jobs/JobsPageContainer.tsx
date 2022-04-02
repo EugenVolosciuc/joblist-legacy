@@ -1,7 +1,6 @@
-import { FC, useState } from "react";
+import { FC, useEffect, useState } from "react";
 import {
   Box,
-  Text,
   Button,
   Icon,
   useDisclosure,
@@ -33,14 +32,14 @@ type Props = {
 
 const JobsContainer: FC<Props> = ({ query: initialQuery }) => {
   const { user } = useAuth();
-  const [filters, setFilters] = useState<JobPostFilters>({
-    companyId: user?.companyId as string,
-  });
+  const [filters, setFilters] = useState<JobPostFilters>({});
   const query = usePageQuery(initialQuery) as PaginatedPageQuery;
   const { data: jobPosts, isLoading } = JobPostService.useJobPosts(
     query,
-    filters
+    filters,
+    [!!user]
   );
+
   const { isOpen: jobPostModalIsOpen, onToggle: toggleJobPostModal } =
     useDisclosure();
   const { isOpen: addCompanyModalIsOpen, onToggle: toggleAddCompanyModal } =
@@ -53,6 +52,11 @@ const JobsContainer: FC<Props> = ({ query: initialQuery }) => {
       toggleJobPostModal();
     }
   };
+
+  useEffect(() => {
+    if (user && user.role === UserRole.RECRUITER)
+      setFilters({ companyId: user.companyId as string });
+  }, [user]);
 
   const gotJobPosts = !isLoading && jobPosts?.data && jobPosts.data.length > 0;
 

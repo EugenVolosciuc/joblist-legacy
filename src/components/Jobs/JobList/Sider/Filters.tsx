@@ -1,13 +1,45 @@
+import { Dispatch, FC, SetStateAction } from "react";
+import { Button } from "@chakra-ui/react";
+
 import Card from "components/shared/Card";
 import { useAuth } from "services/User";
+import { JobPostFilters } from "types/jobPost";
 
-const Filters = () => {
+type Props = {
+  filters: JobPostFilters;
+  setFilters: Dispatch<SetStateAction<JobPostFilters>>;
+};
+
+const Filters: FC<Props> = ({ filters, setFilters }) => {
   const { user } = useAuth();
+
+  const filterByCompanyPosts = () => {
+    setFilters({ companyId: user?.companyId as string });
+  };
+
+  const filterByUserPosts = () => {
+    setFilters({ createdById: user?.id });
+  };
 
   return (
     <Card>
-      <p>Job posts created by me</p>
-      <p>{user?.company?.name}'s job openings</p>
+      {user?.company && (
+        <Button
+          variant="link"
+          onClick={filterByCompanyPosts}
+          isActive={filters?.companyId === user?.companyId}
+        >
+          All {user?.company?.name} job openings
+        </Button>
+      )}
+      <Button
+        variant="link"
+        mb="1"
+        onClick={filterByUserPosts}
+        isActive={filters?.createdById === user?.id}
+      >
+        Job posts created by me
+      </Button>
     </Card>
   );
 };

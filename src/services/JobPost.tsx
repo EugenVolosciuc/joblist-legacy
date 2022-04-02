@@ -17,12 +17,16 @@ export default class JobPostService {
 
   public static useJobPosts(
     query: PaginatedPageQuery,
-    filters: JobPostFilters
+    filters: JobPostFilters,
+    dependencies?: boolean[]
   ) {
-    console.log("filters", filters);
+    const enabled = dependencies
+      ? dependencies.every((dependency) => !!dependency)
+      : true;
     const { isLoading, error, data } = useQuery(
       ["/api/job-posts", query, filters],
-      this._getJobPosts
+      this._getJobPosts,
+      { enabled }
     );
 
     return { isLoading, error, data: data?.data };

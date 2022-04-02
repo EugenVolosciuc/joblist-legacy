@@ -91,7 +91,7 @@ const Header = () => {
   const { user } = useAuth();
 
   return (
-    <Box as="header" height="14" backgroundColor="white">
+    <Box as="header" height="14" backgroundColor="white" boxShadow="sm">
       <Container
         maxWidth="container.xl"
         display="flex"

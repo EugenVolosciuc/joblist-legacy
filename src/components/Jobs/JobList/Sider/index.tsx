@@ -12,7 +12,7 @@ type Props = {
 const Sider: FC<Props> = ({ filters, setFilters }) => {
   return (
     <Box as="aside" width={["full", "full", "250px", "300px"]}>
-      <Filters />
+      <Filters filters={filters} setFilters={setFilters} />
     </Box>
   );
 };

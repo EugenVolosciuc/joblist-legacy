@@ -104,9 +104,13 @@ const AddJobPostModal: FC<Props> = ({ isOpen, onClose }) => {
     };
 
     if (data.includeSalary) {
-      dataToSend.currency = data.currency;
-      dataToSend.salaryType = data.salaryType;
-      dataToSend.salaryPeriod = data.salaryPeriod;
+      // For some reason we get the entire select option instead of just the value, no time to fix
+      // @ts-ignore
+      dataToSend.currency = data.currency.value;
+      // @ts-ignore
+      dataToSend.salaryType = data.salaryType.value;
+      // @ts-ignore
+      dataToSend.salaryPeriod = data.salaryPeriod.value;
 
       if (data.fixedSalary) {
         dataToSend.isFixedSalary = data.fixedSalary;
