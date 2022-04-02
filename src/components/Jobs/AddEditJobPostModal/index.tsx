@@ -14,10 +14,12 @@ import {
 } from "@chakra-ui/react";
 import { useForm, SubmitHandler } from "react-hook-form";
 import {
+  Company,
   Currency,
   JobPost as TJobPost,
   SalaryPeriod,
   SalaryType,
+  User,
 } from "@prisma/client";
 import { add } from "date-fns";
 
@@ -164,7 +166,16 @@ const AddJobPostModal: FC<Props> = ({ isOpen, onClose }) => {
               <BoostPostSection register={register} />
             </>
           ) : (
-            <JobPost jobPost={{ ...getValues(), company: user?.company }} />
+            <JobPost
+              jobPost={{
+                ...getValues(),
+                company: user?.company as Company,
+                createdBy: user as User,
+                // @ts-ignore
+                currency: currency.value,
+              }}
+              isPreview
+            />
           )}
         </ModalBody>
 

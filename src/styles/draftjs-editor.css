@@ -36,6 +36,10 @@
   border: none;
 }
 
+.draftjs-wrapper.read-mode .draftjs-editor {
+  min-height: 0;
+}
+
 .draftjs-wrapper:not(.read-mode) .draftjs-editor {
   padding-left: var(--chakra-space-3);
   padding-right: var(--chakra-space-3);

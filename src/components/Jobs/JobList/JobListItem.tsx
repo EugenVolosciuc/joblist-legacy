@@ -16,6 +16,7 @@ import Link from "next/link";
 import salaryPeriodMapping from "constants/mappings/salaryPeriod";
 import salaryTypeMapping from "constants/mappings/salaryType";
 import { FaEdit } from "react-icons/fa";
+import { getSalaryContent } from "utils/job-post";
 
 type Props = {
   jobPost: JobPost & { company: Company };
@@ -27,7 +28,6 @@ const JobListItem: FC<Props> = ({ jobPost, lastItem }) => {
     company,
     createdAt,
     currency,
-    expiresAt,
     id,
     isSuperPost,
     location,
@@ -44,23 +44,13 @@ const JobListItem: FC<Props> = ({ jobPost, lastItem }) => {
   const canEditJobPost = jobPost.createdById === user?.id;
   const showCompanyData = !isRecruiter;
   const showCompanyLogo = showCompanyData && !!company.logoURL;
-  const showSalary = salaryType && salaryPeriod;
+  const showSalary =
+    salaryPeriod &&
+    salaryType &&
+    currency &&
+    (salary || minSalary || maxSalary);
 
-  let salaryContent = "";
-
-  if (showSalary) {
-    if (salary) {
-      salaryContent = formatCurrency(salary, currency as Currency);
-    } else if (minSalary && maxSalary) {
-      const minSalaryStr = formatCurrency(minSalary, currency as Currency);
-      const maxSalaryStr = formatCurrency(maxSalary, currency as Currency);
-      salaryContent = `${minSalaryStr} - ${maxSalaryStr}`;
-    } else if (minSalary) {
-      salaryContent = `From ${formatCurrency(minSalary, currency as Currency)}`;
-    } else if (maxSalary) {
-      salaryContent = `From ${formatCurrency(maxSalary, currency as Currency)}`;
-    }
-  }
+  const salaryContent = getSalaryContent(jobPost);
 
   const handleEditJobPost: MouseEventHandler<HTMLButtonElement> = (event) => {
     event.preventDefault();
