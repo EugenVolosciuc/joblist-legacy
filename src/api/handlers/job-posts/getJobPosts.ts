@@ -16,9 +16,9 @@ const jobPostPropertiesToFetch = {
   isFixedSalary: true,
   salaryPeriod: true,
   salaryType: true,
-  shortDescription: true,
   isSuperPost: true,
   location: true,
+  createdById: true,
 };
 
 const getJobPosts = async (req: NextApiRequest, res: NextApiResponse) => {

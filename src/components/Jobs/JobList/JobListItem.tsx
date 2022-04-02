@@ -1,11 +1,21 @@
-import { FC } from "react";
-import { Company, JobPost, UserRole } from "@prisma/client";
-import { Box, Heading, Text } from "@chakra-ui/react";
+import { FC, MouseEventHandler } from "react";
+import { Company, Currency, JobPost, UserRole } from "@prisma/client";
+import {
+  Box,
+  Heading,
+  Icon,
+  IconButton,
+  Text,
+  Tooltip,
+} from "@chakra-ui/react";
 import { useAuth } from "services/User";
 import { formatRelative } from "date-fns";
-import { capitalize } from "utils/string-manipulations";
+import { capitalize, formatCurrency } from "utils/string-manipulations";
 import Image from "next/image";
 import Link from "next/link";
+import salaryPeriodMapping from "constants/mappings/salaryPeriod";
+import salaryTypeMapping from "constants/mappings/salaryType";
+import { FaEdit } from "react-icons/fa";
 
 type Props = {
   jobPost: JobPost & { company: Company };
@@ -14,20 +24,49 @@ type Props = {
 
 const JobListItem: FC<Props> = ({ jobPost, lastItem }) => {
   const {
-    title,
     company,
-    shortDescription,
-    location,
-    isSuperPost,
     createdAt,
+    currency,
+    expiresAt,
     id,
+    isSuperPost,
+    location,
+    maxSalary,
+    minSalary,
+    salary,
+    salaryPeriod,
+    salaryType,
+    title,
   } = jobPost;
   const { user } = useAuth();
 
   const isRecruiter = user?.role === UserRole.RECRUITER;
-  // const showCompanyData = !isRecruiter;
-  const showCompanyData = true;
-  const showCompanyLogo = true;
+  const canEditJobPost = jobPost.createdById === user?.id;
+  const showCompanyData = !isRecruiter;
+  const showCompanyLogo = showCompanyData && !!company.logoURL;
+  const showSalary = salaryType && salaryPeriod;
+
+  let salaryContent = "";
+
+  if (showSalary) {
+    if (salary) {
+      salaryContent = formatCurrency(salary, currency as Currency);
+    } else if (minSalary && maxSalary) {
+      const minSalaryStr = formatCurrency(minSalary, currency as Currency);
+      const maxSalaryStr = formatCurrency(maxSalary, currency as Currency);
+      salaryContent = `${minSalaryStr} - ${maxSalaryStr}`;
+    } else if (minSalary) {
+      salaryContent = `From ${formatCurrency(minSalary, currency as Currency)}`;
+    } else if (maxSalary) {
+      salaryContent = `From ${formatCurrency(maxSalary, currency as Currency)}`;
+    }
+  }
+
+  const handleEditJobPost: MouseEventHandler<HTMLButtonElement> = (event) => {
+    event.preventDefault();
+  };
+
+  // TODO: style expired job posts
 
   return (
     <Link href="/jobs/[id]" as={`/jobs/${id}`} passHref>
@@ -73,7 +112,7 @@ const JobListItem: FC<Props> = ({ jobPost, lastItem }) => {
         )}
         <Box
           transition="0.1s ease-in-out"
-          _groupHover={{ ml: showCompanyLogo ? 0 : 2 }}
+          _groupHover={{ ml: showCompanyLogo ? 0 : 6 }}
         >
           <Heading
             as="h4"
@@ -100,7 +139,30 @@ const JobListItem: FC<Props> = ({ jobPost, lastItem }) => {
             {capitalize(formatRelative(new Date(createdAt), new Date()))}
           </Text>
         </Box>
-        <Box></Box>
+        {showSalary && (
+          <Box marginLeft="auto" alignSelf="center">
+            <Text color="gray.500" textAlign="end">
+              {salaryContent}
+            </Text>
+            <Text color="gray.500" textAlign="end">
+              {capitalize(salaryPeriodMapping[salaryPeriod].label)},{" "}
+              {salaryTypeMapping[salaryType].label}
+            </Text>
+          </Box>
+        )}
+        {canEditJobPost && (
+          <Box marginLeft={showSalary ? 4 : "auto"}>
+            <Tooltip label="Edit job post">
+              <IconButton
+                variant="ghost"
+                size="sm"
+                aria-label="Edit job post"
+                onClick={handleEditJobPost}
+                icon={<Icon as={FaEdit} />}
+              />
+            </Tooltip>
+          </Box>
+        )}
       </Box>
     </Link>
   );
