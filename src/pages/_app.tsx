@@ -12,6 +12,7 @@ import "react-datepicker/dist/react-datepicker.css";
 import "react-draft-wysiwyg/dist/react-draft-wysiwyg.css";
 import "styles/date-picker.css";
 import "styles/draftjs-editor.css";
+import "styles/pagination.css";
 
 function MyApp({ Component, pageProps }: AppProps) {
   const [user, setUser] = useState<User | null>(null);

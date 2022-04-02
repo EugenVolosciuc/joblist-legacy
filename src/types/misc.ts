@@ -13,6 +13,11 @@ export type AutocompletesReturnType = {
   }[];
 };
 
+export interface PaginationQuery {
+  page: number;
+  pageSize: number;
+}
+
 export interface PageQuery {
   [key: string]: unknown;
 }

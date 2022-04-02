@@ -60,6 +60,7 @@ const AuthedMenu = () => {
           }
           variant="ghost"
           ml="1"
+          mr="-3"
         >
           <Text>{user?.username}</Text>
         </MenuButton>
@@ -90,7 +91,7 @@ const Header = () => {
   const { user } = useAuth();
 
   return (
-    <Box as="header" height="14" backgroundColor="white" px="4">
+    <Box as="header" height="14" backgroundColor="white">
       <Container
         maxWidth="container.xl"
         display="flex"

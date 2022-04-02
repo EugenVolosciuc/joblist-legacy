@@ -1,22 +1,50 @@
-import { FC } from "react";
-import { Box, Text, Button, Icon, useDisclosure } from "@chakra-ui/react";
+import { FC, useState } from "react";
+import {
+  Box,
+  Text,
+  Button,
+  Icon,
+  useDisclosure,
+  Center,
+  Heading,
+} from "@chakra-ui/react";
 import { FaPlus } from "react-icons/fa";
 import { UserRole } from "@prisma/client";
 
 import { useAuth } from "services/User";
+import JobPostService from "services/JobPost";
 import AddEditJobPostModal from "components/Jobs/AddEditJobPostModal";
 import AddCompanyModal from "components/Jobs/AddCompanyModal";
+import JobList from "components/Jobs/JobList";
+import Empty from "components/shared/Empty";
+import Loader from "components/shared/Loader";
+import { usePageQuery } from "components/Layout/usePageQuery";
+import Sider from "components/Jobs/JobList/Sider";
+import { PaginatedPageQuery } from "types/misc";
+import Card from "components/shared/Card";
+import { JobPostFilters } from "types/jobPost";
 
 type Props = {
-  title?: string;
+  query: {
+    page: number;
+    pageSize: number;
+  };
 };
 
-const JobsContainer: FC<Props> = ({ title }) => {
+const JobsContainer: FC<Props> = ({ query: initialQuery }) => {
+  const { user } = useAuth();
+  const [filters, setFilters] = useState<JobPostFilters>({
+    companyId: user?.companyId as string,
+  });
+  const query = usePageQuery(initialQuery) as PaginatedPageQuery;
+  const { data: jobPosts, isLoading } = JobPostService.useJobPosts(
+    query,
+    filters
+  );
   const { isOpen: jobPostModalIsOpen, onToggle: toggleJobPostModal } =
     useDisclosure();
   const { isOpen: addCompanyModalIsOpen, onToggle: toggleAddCompanyModal } =
     useDisclosure();
-  const { user } = useAuth();
 
   const handleNewJobPostClick = () => {
     if (!user?.companyId) {
@@ -26,10 +54,12 @@ const JobsContainer: FC<Props> = ({ title }) => {
     }
   };
 
+  const gotJobPosts = !isLoading && jobPosts?.data && jobPosts.data.length > 0;
+
   return (
-    <Box width="full" px={[4, 4, 8]}>
+    <Box width="full">
       <Box width="full" display="flex" justifyContent="space-between" my="4">
-        {title ? <Text>{title}</Text> : <span />}
+        <Heading fontSize="xl">Job posts</Heading>
         {user?.role === UserRole.RECRUITER && (
           <>
             <Button
@@ -54,7 +84,24 @@ const JobsContainer: FC<Props> = ({ title }) => {
           </>
         )}
       </Box>
-      <Box></Box>
+      <Box display="flex" flexWrap="wrap">
+        <Sider filters={filters} setFilters={setFilters} />
+        <Box flex="1" pl={[0, 0, 4, 4, 6]} mt={[4, 4, 0]}>
+          <Card>
+            {isLoading ? (
+              <Center my="8">
+                <Loader />
+              </Center>
+            ) : !gotJobPosts ? (
+              <Center my="8">
+                <Empty />
+              </Center>
+            ) : (
+              <JobList jobPosts={jobPosts.data} query={query} />
+            )}
+          </Card>
+        </Box>
+      </Box>
     </Box>
   );
 };
