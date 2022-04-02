@@ -1,5 +1,6 @@
 import { Company } from "@prisma/client";
-import axios from "axios";
+
+import axios from "config/axios";
 
 export default class CompanyService {
   public static async searchCompanies(query: string) {

@@ -1,9 +1,19 @@
-import { createContext, Dispatch, SetStateAction, useContext } from "react";
+import {
+  createContext,
+  Dispatch,
+  SetStateAction,
+  useContext,
+  useEffect,
+} from "react";
 import { Company, User, UserRole } from "@prisma/client";
-import { User as SupabaseUser } from "@supabase/supabase-js";
-import axios from "axios";
+import {
+  AuthChangeEvent,
+  Session,
+  User as SupabaseUser,
+} from "@supabase/supabase-js";
 
 import { supabase } from "config/supabase";
+import axios from "config/axios";
 
 export enum AuthProviders {
   LinkedIn = "LinkedIn",
@@ -20,6 +30,20 @@ export const authContext = createContext<{
 
 export const useAuth = () => {
   return useContext(authContext);
+};
+
+export const useAuthListener = () => {
+  useEffect(() => {
+    const { data: authListener } = supabase.auth.onAuthStateChange(
+      async (event, session) => {
+        await UserService.handleAuthChange(event, session);
+      }
+    );
+
+    return () => {
+      authListener?.unsubscribe();
+    };
+  }, []);
 };
 
 export const AuthProvider = authContext.Provider;
@@ -68,6 +92,18 @@ export default class UserService {
     );
 
     return { user, session, error };
+  }
+
+  public static async handleAuthChange(
+    event: AuthChangeEvent,
+    session: Session | null
+  ) {
+    await fetch("/api/auth", {
+      method: "POST",
+      headers: new Headers({ "Content-Type": "application/json" }),
+      credentials: "same-origin",
+      body: JSON.stringify({ event, session }),
+    });
   }
 
   /**

@@ -2,7 +2,7 @@ import componentVariants, {
   ToastConfig,
   ToastVariant,
 } from "config/app/components";
-import * as themes from "config/themes";
+import * as themes from "config/app/themes";
 
 export interface AppConfig {
   title: string;

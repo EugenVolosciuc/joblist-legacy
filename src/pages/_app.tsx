@@ -6,7 +6,7 @@ import { QueryClientProvider } from "react-query";
 
 import appConfig from "config/app";
 import queryClient from "config/react-query";
-import UserService, { AuthProvider } from "services/User";
+import UserService, { AuthProvider, useAuthListener } from "services/User";
 
 import "react-datepicker/dist/react-datepicker.css";
 import "react-draft-wysiwyg/dist/react-draft-wysiwyg.css";
@@ -15,6 +15,7 @@ import "styles/draftjs-editor.css";
 
 function MyApp({ Component, pageProps }: AppProps) {
   const [user, setUser] = useState<User | null>(null);
+  useAuthListener();
 
   useEffect(() => {
     setTimeout(async () => {

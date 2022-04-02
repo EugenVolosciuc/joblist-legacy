@@ -1,10 +1,10 @@
 import type { NextApiRequest, NextApiResponse } from "next";
-import axios from "axios";
 
 import prisma from "config/prisma";
 import { AutocompletesReturnType } from "types/misc";
 import { crunchbaseDataParser } from "utils/parsers";
 import { serverErrorHandler } from "utils/error-handlers";
+import axios from "config/axios";
 
 const crunchbaseApiURL = `https://${process.env.CRUNCHBASE_API_HOST}`;
 
