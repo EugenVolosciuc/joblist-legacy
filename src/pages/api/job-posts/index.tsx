@@ -2,17 +2,15 @@ import type { NextApiRequest, NextApiResponse } from "next";
 
 import createJobPost from "api-handlers/job-posts/createJobPost";
 import notFound from "api-handlers/notFound";
-import { serverErrorHandler } from "utils/error-handlers";
+import getJobPosts from "api-handlers/job-posts/getJobPosts";
 
 export default async (req: NextApiRequest, res: NextApiResponse) => {
-  try {
-    if (req.method === "POST") {
+  switch (req.method) {
+    case "GET":
+      return await getJobPosts(req, res);
+    case "POST":
       return await createJobPost(req, res);
-    } else {
+    default:
       return notFound(res);
-    }
-  } catch (error) {
-    console.log("got to the error!!!!!!!!!!!!!!!!", error);
-    serverErrorHandler(res, error);
   }
 };

@@ -70,6 +70,12 @@ export default class UserService {
     return { user, session, error };
   }
 
+  /**
+   * @description
+   * This function returns the authed user from Supabase with no details other than the basic profile.
+   * It should only be used once - in the auth checking useEffect in `_app.ts`.
+   * To get the authed user use the `useAuth` hook from `services/User` instead.
+   */
   static getAuthedUser() {
     return supabase.auth.user();
   }

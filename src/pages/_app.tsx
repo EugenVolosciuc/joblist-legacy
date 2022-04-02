@@ -1,10 +1,12 @@
+import { useEffect, useState } from "react";
 import { ChakraProvider } from "@chakra-ui/react";
 import type { AppProps } from "next/app";
 import { User } from "@prisma/client";
+import { QueryClientProvider } from "react-query";
 
 import appConfig from "config/app";
+import queryClient from "config/react-query";
 import UserService, { AuthProvider } from "services/User";
-import { useEffect, useState } from "react";
 
 import "react-datepicker/dist/react-datepicker.css";
 import "react-draft-wysiwyg/dist/react-draft-wysiwyg.css";
@@ -28,9 +30,11 @@ function MyApp({ Component, pageProps }: AppProps) {
 
   return (
     <ChakraProvider theme={appConfig.theme}>
-      <AuthProvider value={{ user, setUser }}>
-        <Component {...pageProps} />
-      </AuthProvider>
+      <QueryClientProvider client={queryClient}>
+        <AuthProvider value={{ user, setUser }}>
+          <Component {...pageProps} />
+        </AuthProvider>
+      </QueryClientProvider>
     </ChakraProvider>
   );
 }
