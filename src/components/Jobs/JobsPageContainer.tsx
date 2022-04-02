@@ -61,7 +61,7 @@ const JobsContainer: FC<Props> = ({ query: initialQuery }) => {
   const gotJobPosts = !isLoading && jobPosts?.data && jobPosts.data.length > 0;
 
   return (
-    <Box width="full">
+    <Box width="full" mb="4">
       <Box width="full" display="flex" justifyContent="space-between" my="4">
         <Heading fontSize="xl">Job posts</Heading>
         {user?.role === UserRole.RECRUITER && (

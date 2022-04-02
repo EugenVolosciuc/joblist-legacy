@@ -9,6 +9,7 @@ import {
   List,
   ListItem,
   ListIcon,
+  Divider,
 } from "@chakra-ui/react";
 
 import Editor from "components/shared/Editor";
@@ -34,8 +35,6 @@ const JobPost: FC<Props> = ({ jobPost, isPreview = false }) => {
     createdBy,
     currency,
     description,
-    expiresAt,
-    id,
     isSuperPost,
     location,
     maxSalary,
@@ -45,7 +44,6 @@ const JobPost: FC<Props> = ({ jobPost, isPreview = false }) => {
     salaryType,
     title,
   } = jobPost;
-  console.log("jobPost", jobPost);
 
   const showSalary =
     salaryPeriod &&
@@ -96,6 +94,7 @@ const JobPost: FC<Props> = ({ jobPost, isPreview = false }) => {
           </ListItem>
         )}
       </List>
+      <Divider mt="4" />
       <Editor initialEditorContent={description} readMode />
       <Box display="flex" flexDirection="column">
         <Box display="flex">

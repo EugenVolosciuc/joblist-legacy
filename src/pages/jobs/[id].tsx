@@ -1,9 +1,26 @@
 import { GetServerSidePropsContext, InferGetServerSidePropsType } from "next";
+import { Company, JobPost, User } from "@prisma/client";
+
+import Layout from "components/Layout";
+import JobPageContainer from "components/Jobs/JobpageContainer";
+import JobPostService from "services/JobPost";
+import prisma from "config/prisma";
 
 const JobPage = ({
-  id,
+  jobPost: initialJobPost,
 }: InferGetServerSidePropsType<typeof getServerSideProps>) => {
-  return <div>JobPage</div>;
+  const { data: jobPost } = JobPostService.useJobPost(
+    (initialJobPost as JobPost).id,
+    initialJobPost
+  );
+
+  return (
+    <Layout>
+      <JobPageContainer
+        jobPost={jobPost as JobPost & { company: Company; createdBy: User }}
+      />
+    </Layout>
+  );
 };
 
 export default JobPage;
@@ -15,9 +32,16 @@ export const getServerSideProps = async (
 
   if (!params?.id || typeof params.id !== "string") return { notFound: true };
 
+  const jobPost = await prisma.jobPost.findUnique({
+    where: { id: params.id },
+    include: { company: true, createdBy: true },
+  });
+
+  if (!jobPost) return { notFound: true };
+
   return {
     props: {
-      id: params.id,
+      jobPost: JSON.parse(JSON.stringify(jobPost)),
     },
   };
 };

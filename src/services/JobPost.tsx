@@ -1,4 +1,4 @@
-import { Company, JobPost } from "@prisma/client";
+import { Company, JobPost, User } from "@prisma/client";
 import { QueryFunctionContext, useQuery } from "react-query";
 
 import queryClient from "config/react-query";
@@ -32,6 +32,16 @@ export default class JobPostService {
     return { isLoading, error, data: data?.data };
   }
 
+  public static useJobPost(id: string, initialData?: JobPost) {
+    const { isLoading, error, data } = useQuery(
+      ["/api/job-posts", id],
+      this._getJobPost,
+      { initialData }
+    );
+
+    return { isLoading, error, data: data };
+  }
+
   private static async _getJobPosts({
     queryKey,
   }: QueryFunctionContext<
@@ -46,5 +56,17 @@ export default class JobPostService {
     }>(_key as string, {
       params: { ...(query as PaginatedPageQuery), filters },
     });
+  }
+
+  private static async _getJobPost({
+    queryKey,
+  }: QueryFunctionContext<string[]>) {
+    const [_key, id] = queryKey;
+
+    return (
+      await axios.get<JobPost & { company: Company; createdBy: User }>(
+        `${_key}/${id}`
+      )
+    ).data;
   }
 }

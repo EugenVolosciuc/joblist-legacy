@@ -28,8 +28,6 @@ const getJobPosts = async (req: NextApiRequest, res: NextApiResponse) => {
     filters: JSON.parse((req.query.filters as string) || "{}"),
   };
 
-  console.log("filters", query.filters);
-
   const { skip, take } = paginationToOffset(query);
 
   const jobPostsCount = await prisma.jobPost.count({

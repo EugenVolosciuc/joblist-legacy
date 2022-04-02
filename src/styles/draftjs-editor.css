@@ -44,3 +44,7 @@
   padding-left: var(--chakra-space-3);
   padding-right: var(--chakra-space-3);
 }
+
+.public-DraftStyleDefault-block {
+  margin: 0.75em 0;
+}
