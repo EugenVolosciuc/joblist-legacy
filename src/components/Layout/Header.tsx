@@ -9,6 +9,7 @@ import {
   MenuList,
   MenuItem,
   Image,
+  Container,
 } from "@chakra-ui/react";
 import { FaSignOutAlt, FaCog, FaBookmark } from "react-icons/fa";
 
@@ -89,21 +90,21 @@ const Header = () => {
   const { user } = useAuth();
 
   return (
-    <Box
-      as="header"
-      height="14"
-      display="flex"
-      justifyContent="space-between"
-      alignItems="center"
-      backgroundColor="white"
-      px="4"
-    >
-      <Link href="/" passHref>
-        <Text as="a" fontWeight="bold" fontSize="2xl">
-          {appConfig.title}
-        </Text>
-      </Link>
-      {user ? <AuthedMenu /> : <NonAuthedMenu />}
+    <Box as="header" height="14" backgroundColor="white" px="4">
+      <Container
+        maxWidth="container.xl"
+        display="flex"
+        justifyContent="space-between"
+        alignItems="center"
+        height="full"
+      >
+        <Link href="/" passHref>
+          <Text as="a" fontWeight="bold" fontSize="2xl">
+            {appConfig.title}
+          </Text>
+        </Link>
+        {user ? <AuthedMenu /> : <NonAuthedMenu />}
+      </Container>
     </Box>
   );
 };

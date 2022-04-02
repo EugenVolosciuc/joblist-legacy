@@ -1,5 +1,5 @@
 import { FC } from "react";
-import { Box } from "@chakra-ui/react";
+import { Box, Container } from "@chakra-ui/react";
 
 import Header from "components/Layout/Header";
 import Footer from "components/Layout/Footer";
@@ -14,7 +14,14 @@ const Layout: FC = ({ children }) => {
       flexDirection="column"
     >
       <Header />
-      <Box flex="1">{children}</Box>
+      <Container
+        maxWidth="container.xl"
+        flex="1"
+        overflow="hidden"
+        alignSelf="center"
+      >
+        {children}
+      </Container>
       <Footer />
     </Box>
   );
