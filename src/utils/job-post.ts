@@ -2,6 +2,7 @@ import { Currency, JobPost, SalaryPeriod, SalaryType } from "@prisma/client";
 import currencyMapping from "constants/mappings/currency";
 import salaryPeriodMapping from "constants/mappings/salaryPeriod";
 import salaryTypeMapping from "constants/mappings/salaryType";
+import { isBefore } from "date-fns";
 import { capitalize, formatCurrency } from "utils/string-manipulations";
 
 export const getSalaryContent = ({
@@ -65,4 +66,8 @@ export const getDefaultJobPostValues = (jobPost: JobPost) => {
   }
 
   return defaultValues;
+};
+
+export const jobPostIsExpired = (jobPost: JobPost) => {
+  return isBefore(new Date(jobPost.expiresAt), new Date());
 };

@@ -26,6 +26,12 @@ export default class JobPostService {
     return data;
   }
 
+  public static async removeJobPost(id: string) {
+    await axios.delete(`/api/job-posts/${id}`);
+
+    queryClient.invalidateQueries("/api/job-posts");
+  }
+
   public static useJobPosts(
     query: PaginatedPageQuery,
     filters: JobPostFilters,

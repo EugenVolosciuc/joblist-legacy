@@ -1,4 +1,10 @@
-import { FC, MouseEventHandler } from "react";
+import {
+  FC,
+  MouseEventHandler,
+  Dispatch,
+  SetStateAction,
+  useState,
+} from "react";
 import { Company, JobPost, UserRole } from "@prisma/client";
 import {
   Box,
@@ -15,16 +21,23 @@ import Image from "next/image";
 import Link from "next/link";
 import salaryPeriodMapping from "constants/mappings/salaryPeriod";
 import salaryTypeMapping from "constants/mappings/salaryType";
-import { FaEdit } from "react-icons/fa";
-import { getSalaryContent } from "utils/job-post";
+import { FaEdit, FaCalendarTimes } from "react-icons/fa";
+import { getSalaryContent, jobPostIsExpired } from "utils/job-post";
 import { useRouter } from "next/router";
+import { clientErrorHandler } from "utils/error-handlers";
+import JobPostService from "services/JobPost";
 
 type Props = {
   jobPost: JobPost & { company: Company };
   lastItem: boolean;
+  setJobPostIdToRemove: Dispatch<SetStateAction<string | null>>;
 };
 
-const JobListItem: FC<Props> = ({ jobPost, lastItem }) => {
+const JobListItem: FC<Props> = ({
+  jobPost,
+  lastItem,
+  setJobPostIdToRemove,
+}) => {
   const {
     company,
     createdAt,
@@ -41,7 +54,9 @@ const JobListItem: FC<Props> = ({ jobPost, lastItem }) => {
   } = jobPost;
   const router = useRouter();
   const { user } = useAuth();
+  const [deactivatingPost, setDeactivatingPost] = useState(false);
 
+  const isExpired = jobPostIsExpired(jobPost);
   const isRecruiter = user?.role === UserRole.RECRUITER;
   const canEditJobPost = jobPost.createdById === user?.id;
   const showCompanyData = !isRecruiter;
@@ -60,7 +75,29 @@ const JobListItem: FC<Props> = ({ jobPost, lastItem }) => {
     router.push("/jobs/[id]/edit", `/jobs/${jobPost.id}/edit`);
   };
 
-  // TODO: style expired job posts
+  const handleDeactivatePost: MouseEventHandler<HTMLButtonElement> = async (
+    event
+  ) => {
+    event.preventDefault();
+
+    try {
+      setDeactivatingPost(true);
+
+      await JobPostService.updateJobPost(jobPost.id, { expiresAt: new Date() });
+
+      setDeactivatingPost(false);
+    } catch (error) {
+      setDeactivatingPost(false);
+      clientErrorHandler(error);
+    }
+  };
+
+  const handleShowDeletePostModal: MouseEventHandler<
+    HTMLButtonElement
+  > = async (event) => {
+    event.preventDefault();
+    setJobPostIdToRemove(jobPost.id);
+  };
 
   return (
     <Link href="/jobs/[id]" as={`/jobs/${id}`} passHref>
@@ -132,6 +169,13 @@ const JobListItem: FC<Props> = ({ jobPost, lastItem }) => {
             {isSuperPost ? "Promoted | " : ""}
             {capitalize(formatRelative(new Date(createdAt), new Date()))}
           </Text>
+          {isExpired && (
+            <Text fontSize="xs" color="red.400">
+              {canEditJobPost
+                ? "Job post deactivated"
+                : "Not accepting new candidates"}
+            </Text>
+          )}
         </Box>
         {showSalary && (
           <Box marginLeft="auto" alignSelf="center">
@@ -145,14 +189,47 @@ const JobListItem: FC<Props> = ({ jobPost, lastItem }) => {
           </Box>
         )}
         {canEditJobPost && (
-          <Box marginLeft={showSalary ? 4 : "auto"}>
-            <Tooltip label="Edit job post">
+          <Box
+            marginLeft={showSalary ? 4 : "auto"}
+            display="flex"
+            flexDirection="column"
+            justifyContent="space-evenly"
+            transition="opacity 0.1s ease-in-out"
+            opacity={[1, 1, 1, 0]}
+            _groupHover={{
+              opacity: 1,
+            }}
+          >
+            <Tooltip label="Modify job post">
               <IconButton
                 variant="ghost"
                 size="sm"
-                aria-label="Edit job post"
+                aria-label="Modify job post"
                 onClick={handleEditJobPost}
                 icon={<Icon as={FaEdit} />}
+              />
+            </Tooltip>
+            {!isExpired && (
+              <Tooltip label="Deactivate post">
+                <IconButton
+                  variant="ghost"
+                  size="sm"
+                  colorScheme="gray"
+                  aria-label="Deactivate post"
+                  isLoading={deactivatingPost}
+                  onClick={handleDeactivatePost}
+                  icon={<Icon as={FaCalendarTimes} />}
+                />
+              </Tooltip>
+            )}
+            <Tooltip label="Remove post">
+              <IconButton
+                variant="ghost"
+                size="sm"
+                colorScheme="red"
+                aria-label="Remove post"
+                onClick={handleShowDeletePostModal}
+                icon={<Icon as={FaCalendarTimes} />}
               />
             </Tooltip>
           </Box>
