@@ -15,7 +15,7 @@ const JobPage = ({
   );
 
   return (
-    <Layout>
+    <Layout headProps={{ title: `${jobPost?.title}@${jobPost.company.name}` }}>
       <JobPageContainer
         jobPost={jobPost as JobPost & { company: Company; createdBy: User }}
       />

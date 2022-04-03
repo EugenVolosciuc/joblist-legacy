@@ -7,7 +7,7 @@ const JobsPage = ({
   query,
 }: InferGetServerSidePropsType<typeof getServerSideProps>) => {
   return (
-    <Layout>
+    <Layout headProps={{ title: "Jobs" }}>
       <JobsPageContainer query={query} />
     </Layout>
   );

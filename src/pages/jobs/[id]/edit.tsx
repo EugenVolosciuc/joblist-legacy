@@ -18,7 +18,7 @@ const EditJobPostPage = ({
   };
 
   return (
-    <Layout>
+    <Layout headProps={{ title: "Edit job post" }}>
       <AddEditJobPostModal
         jobPost={jobPost}
         onClose={handleClose}

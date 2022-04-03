@@ -56,7 +56,11 @@ export default class JobPostService {
       { initialData }
     );
 
-    return { isLoading, error, data: data };
+    return {
+      isLoading,
+      error,
+      data: data as JobPost & { company: Company; createdBy: User },
+    };
   }
 
   private static async _getJobPosts({
