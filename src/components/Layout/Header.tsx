@@ -11,11 +11,12 @@ import {
   Image,
   Container,
 } from "@chakra-ui/react";
-import { FaSignOutAlt, FaCog, FaBookmark } from "react-icons/fa";
+import { FaSignOutAlt, FaCog } from "react-icons/fa";
 
 import UserService, { useAuth } from "services/User";
 import { useRouter } from "next/router";
 import appConfig from "config/app";
+import PageLoader from "components/shared/PageLoader";
 
 const NonAuthedMenu = () => (
   <Box as="nav">
@@ -95,8 +96,11 @@ const Header = () => {
         height="full"
       >
         <Link href="/" passHref>
-          <Text as="a" fontWeight="bold" fontSize="2xl">
+          <Text as="a" fontWeight="bold" fontSize="2xl" position="relative">
             {appConfig.title}
+            <Box as="span" position="absolute" right="-5" top="-2">
+              <PageLoader />
+            </Box>
           </Text>
         </Link>
         {user ? <AuthedMenu /> : <NonAuthedMenu />}

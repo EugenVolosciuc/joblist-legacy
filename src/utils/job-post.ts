@@ -54,7 +54,7 @@ export const getDefaultJobPostValues = (jobPost: JobPost) => {
       value: salaryTypeMapping[jobPost.salaryType as SalaryType].value,
     };
     defaultValues.currency = currency;
-    defaultValues.isFixedSalary = jobPost.isFixedSalary;
+    defaultValues.fixedSalary = jobPost.isFixedSalary;
     defaultValues.isSuperPost = jobPost.isSuperPost;
     defaultValues.includeSalary = true;
     defaultValues.salaryPeriod = salaryPeriod;

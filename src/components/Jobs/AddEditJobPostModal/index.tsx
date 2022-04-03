@@ -103,6 +103,7 @@ const AddEditJobPostModal: FC<Props> = ({
       description: data.description,
       location: data.location,
       expiresAt: data.expiresAt,
+      isSuperPost: data.isSuperPost,
     };
 
     if (!isUpdateModal) {

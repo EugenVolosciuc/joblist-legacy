@@ -9,7 +9,7 @@ type Props = {
 const Loader: FC<Props> = ({ isLoading = true, size = "lg" }) => {
   if (!isLoading) return null;
 
-  return <Spinner size={size} color="primary.500" />;
+  return <Spinner thickness="3px" size={size} color="primary.500" />;
 };
 
 export default Loader;

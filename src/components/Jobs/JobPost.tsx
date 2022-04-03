@@ -1,5 +1,5 @@
 import { FC } from "react";
-import { JobPost, Company, User } from "@prisma/client";
+import { JobPost as TJobPost, Company, User } from "@prisma/client";
 import {
   Box,
   Heading,
@@ -15,6 +15,7 @@ import {
 } from "@chakra-ui/react";
 import { formatRelative, sub } from "date-fns";
 import {
+  FaBan,
   FaBriefcase,
   FaClock,
   FaEdit,
@@ -24,12 +25,14 @@ import {
 } from "react-icons/fa";
 
 import Editor from "components/shared/Editor";
-import { getSalaryContent } from "utils/job-post";
+import { getSalaryContent, jobPostIsExpired } from "utils/job-post";
 import { useAuth } from "services/User";
 import { useRouter } from "next/router";
+import salaryPeriodMapping from "constants/mappings/salaryPeriod";
+import salaryTypeMapping from "constants/mappings/salaryType";
 
 type Props = {
-  jobPost: Partial<JobPost> & { company: Company; createdBy: User };
+  jobPost: Partial<TJobPost> & { company: Company; createdBy: User };
   isPreview?: boolean;
   showActions?: boolean;
 };
@@ -59,6 +62,7 @@ const JobPost: FC<Props> = ({
     title,
   } = jobPost;
 
+  const isExpired = jobPostIsExpired(jobPost as TJobPost);
   const showSalary =
     salaryPeriod &&
     salaryType &&
@@ -130,13 +134,27 @@ const JobPost: FC<Props> = ({
         {isSuperPost && (
           <ListItem display="flex" alignItems="center">
             <ListIcon as={FaStar} color={"primary.400"} />
-            Promoted
+            <Text>Promoted</Text>
           </ListItem>
         )}
         {showSalary && (
           <ListItem display="flex" alignItems="center">
             <ListIcon as={FaMoneyBill} color={"primary.400"} />
-            {getSalaryContent(jobPost as JobPost)}
+            <Text>
+              {getSalaryContent(jobPost as TJobPost)}{" "}
+              {salaryPeriodMapping[salaryPeriod].label.replace("per", "/")},{" "}
+              {salaryTypeMapping[salaryType].label}
+            </Text>
+          </ListItem>
+        )}
+        {isExpired && (
+          <ListItem display="flex" alignItems="center">
+            <ListIcon as={FaBan} color={"red.400"} />
+            <Text color="red.400">
+              {canEditJobPost
+                ? "Job post deactivated"
+                : "Not accepting new candidates"}
+            </Text>
           </ListItem>
         )}
       </List>
