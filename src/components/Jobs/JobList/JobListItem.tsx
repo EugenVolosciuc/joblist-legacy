@@ -1,5 +1,5 @@
 import { FC, MouseEventHandler } from "react";
-import { Company, Currency, JobPost, UserRole } from "@prisma/client";
+import { Company, JobPost, UserRole } from "@prisma/client";
 import {
   Box,
   Heading,
@@ -10,13 +10,14 @@ import {
 } from "@chakra-ui/react";
 import { useAuth } from "services/User";
 import { formatRelative } from "date-fns";
-import { capitalize, formatCurrency } from "utils/string-manipulations";
+import { capitalize } from "utils/string-manipulations";
 import Image from "next/image";
 import Link from "next/link";
 import salaryPeriodMapping from "constants/mappings/salaryPeriod";
 import salaryTypeMapping from "constants/mappings/salaryType";
 import { FaEdit } from "react-icons/fa";
 import { getSalaryContent } from "utils/job-post";
+import { useRouter } from "next/router";
 
 type Props = {
   jobPost: JobPost & { company: Company };
@@ -38,6 +39,7 @@ const JobListItem: FC<Props> = ({ jobPost, lastItem }) => {
     salaryType,
     title,
   } = jobPost;
+  const router = useRouter();
   const { user } = useAuth();
 
   const isRecruiter = user?.role === UserRole.RECRUITER;
@@ -54,6 +56,8 @@ const JobListItem: FC<Props> = ({ jobPost, lastItem }) => {
 
   const handleEditJobPost: MouseEventHandler<HTMLButtonElement> = (event) => {
     event.preventDefault();
+
+    router.push("/jobs/[id]/edit", `/jobs/${jobPost.id}/edit`);
   };
 
   // TODO: style expired job posts

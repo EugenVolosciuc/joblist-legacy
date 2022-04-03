@@ -2,7 +2,7 @@ import { GetServerSidePropsContext, InferGetServerSidePropsType } from "next";
 import { Company, JobPost, User } from "@prisma/client";
 
 import Layout from "components/Layout";
-import JobPageContainer from "components/Jobs/JobpageContainer";
+import JobPageContainer from "components/Jobs/JobPageContainer";
 import JobPostService from "services/JobPost";
 import prisma from "config/prisma";
 

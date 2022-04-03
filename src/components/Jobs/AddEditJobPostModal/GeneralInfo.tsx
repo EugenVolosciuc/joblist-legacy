@@ -111,7 +111,12 @@ const GeneralInfoSection: FC<Props> = ({
             render={({ field }) => (
               <Datepicker
                 id="expiresAt"
-                value={format(field.value, "dd/MM/yyyy")}
+                value={format(
+                  typeof field.value === "string" // this happens for defaultValues, as we get an ISO string from the backend
+                    ? new Date(field.value)
+                    : field.value,
+                  "dd/MM/yyyy"
+                )}
                 onChange={field.onChange}
               />
             )}

@@ -1,4 +1,4 @@
-import { FC, useState } from "react";
+import { FC, MouseEventHandler, useState } from "react";
 import {
   Modal,
   ModalOverlay,
@@ -31,10 +31,14 @@ import JobPostService from "services/JobPost";
 import appConfig from "config/app";
 import { useAuth } from "services/User";
 import JobPost from "components/Jobs/JobPost";
+import { getDefaultJobPostValues } from "utils/job-post";
+import { useRouter } from "next/router";
 
 type Props = {
   isOpen: boolean;
-  onClose: () => void;
+  onClose: Function;
+  jobPost?: TJobPost | null;
+  closeOnOverlayClick?: boolean;
 };
 
 enum ModalMode {
@@ -58,9 +62,23 @@ export type Inputs = {
   isSuperPost: boolean;
 };
 
-const AddJobPostModal: FC<Props> = ({ isOpen, onClose }) => {
+const AddEditJobPostModal: FC<Props> = ({
+  isOpen,
+  onClose,
+  jobPost,
+  closeOnOverlayClick = true,
+}) => {
   const [isLoading, setIsLoading] = useState(false);
   const [mode, setMode] = useState<ModalMode>(ModalMode.EDIT);
+
+  const isUpdateModal = !!jobPost;
+  const defaultValues = isUpdateModal
+    ? getDefaultJobPostValues(jobPost)
+    : {
+        expiresAt: add(new Date(), { months: 2 }),
+      };
+
+  const router = useRouter();
   const { user } = useAuth();
   const toast = useToast();
   const {
@@ -73,9 +91,7 @@ const AddJobPostModal: FC<Props> = ({ isOpen, onClose }) => {
     formState: { errors },
   } = useForm<Inputs>({
     shouldUnregister: false,
-    defaultValues: {
-      expiresAt: add(new Date(), { months: 2 }),
-    },
+    defaultValues,
   });
 
   const toggleMode = () =>
@@ -87,9 +103,12 @@ const AddJobPostModal: FC<Props> = ({ isOpen, onClose }) => {
       description: data.description,
       location: data.location,
       expiresAt: data.expiresAt,
-      createdById: user?.id,
-      companyId: user?.companyId as string,
     };
+
+    if (!isUpdateModal) {
+      dataToSend.createdById = user?.id;
+      dataToSend.companyId = user?.companyId as string;
+    }
 
     if (data.includeSalary) {
       // For some reason we get the entire select option instead of just the value, no time to fix
@@ -111,17 +130,26 @@ const AddJobPostModal: FC<Props> = ({ isOpen, onClose }) => {
 
     try {
       setIsLoading(true);
-      await JobPostService.createJobPost(dataToSend);
+      let newJobPost: TJobPost;
+      if (!isUpdateModal) {
+        newJobPost = await JobPostService.createJobPost(dataToSend);
+      } else {
+        newJobPost = await JobPostService.updateJobPost(
+          (jobPost as unknown as TJobPost).id,
+          dataToSend
+        );
+      }
+
       reset();
 
       toast({
-        description: "Job post created",
+        description: `Job post ${isUpdateModal ? "modified" : "created"}`,
         status: "success",
         ...appConfig.componentVariants.toast,
       });
-      onClose();
+      router.push("/jobs/[id]", `/jobs/${newJobPost.id}`);
 
-      setIsLoading(false);
+      onClose();
     } catch (error) {
       setIsLoading(false);
       clientErrorHandler(error);
@@ -136,10 +164,18 @@ const AddJobPostModal: FC<Props> = ({ isOpen, onClose }) => {
   const maxSalary = watch("maxSalary");
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} size="xl">
+    <Modal
+      isOpen={isOpen}
+      onClose={onClose as () => void}
+      size="xl"
+      closeOnOverlayClick={closeOnOverlayClick}
+      closeOnEsc={closeOnOverlayClick}
+    >
       <ModalOverlay />
       <ModalContent as="form" onSubmit={handleSubmit(onSubmit)} noValidate>
-        <ModalHeader>Create a new job post</ModalHeader>
+        <ModalHeader>
+          {isUpdateModal ? "Modify job post" : "Create a new job post"}
+        </ModalHeader>
         <ModalCloseButton />
         <ModalBody pt="0">
           {mode === ModalMode.EDIT ? (
@@ -172,7 +208,8 @@ const AddJobPostModal: FC<Props> = ({ isOpen, onClose }) => {
                 company: user?.company as Company,
                 createdBy: user as User,
                 // @ts-ignore
-                currency: currency.value,
+                currency: currency?.value,
+                ...(jobPost?.createdAt && { createdAt: jobPost.createdAt }),
               }}
               isPreview
             />
@@ -180,7 +217,11 @@ const AddJobPostModal: FC<Props> = ({ isOpen, onClose }) => {
         </ModalBody>
 
         <ModalFooter justifyContent="space-between">
-          <Button variant="ghost" mr={3} onClick={onClose}>
+          <Button
+            variant="ghost"
+            mr={3}
+            onClick={onClose as MouseEventHandler<HTMLButtonElement>}
+          >
             Close
           </Button>
           <Box>
@@ -188,7 +229,7 @@ const AddJobPostModal: FC<Props> = ({ isOpen, onClose }) => {
               {mode === ModalMode.EDIT ? "Preview" : "Edit"}
             </Button>
             <Button isLoading={isLoading} type="submit">
-              Add job post
+              {isUpdateModal ? "Modify" : "Add job post"}
             </Button>
           </Box>
         </ModalFooter>
@@ -197,4 +238,4 @@ const AddJobPostModal: FC<Props> = ({ isOpen, onClose }) => {
   );
 };
 
-export default AddJobPostModal;
+export default AddEditJobPostModal;

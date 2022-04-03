@@ -5,36 +5,50 @@ import {
   Heading,
   Text,
   Image,
-  Icon,
   List,
   ListItem,
   ListIcon,
   Divider,
+  Button,
+  Icon,
+  IconButton,
 } from "@chakra-ui/react";
-
-import Editor from "components/shared/Editor";
 import { formatRelative, sub } from "date-fns";
 import {
   FaBriefcase,
   FaClock,
+  FaEdit,
   FaMapMarkedAlt,
   FaMoneyBill,
   FaStar,
 } from "react-icons/fa";
+
+import Editor from "components/shared/Editor";
 import { getSalaryContent } from "utils/job-post";
+import { useAuth } from "services/User";
+import { useRouter } from "next/router";
 
 type Props = {
   jobPost: Partial<JobPost> & { company: Company; createdBy: User };
   isPreview?: boolean;
+  showActions?: boolean;
 };
 
-const JobPost: FC<Props> = ({ jobPost, isPreview = false }) => {
+const JobPost: FC<Props> = ({
+  jobPost,
+  isPreview = false,
+  showActions = true,
+}) => {
+  showActions = isPreview ? false : showActions;
+  const { user } = useAuth();
+  const router = useRouter();
   const {
     company,
     createdAt,
     createdBy,
     currency,
     description,
+    id,
     isSuperPost,
     location,
     maxSalary,
@@ -51,13 +65,45 @@ const JobPost: FC<Props> = ({ jobPost, isPreview = false }) => {
     currency &&
     (salary || minSalary || maxSalary);
 
+  const canEditJobPost = jobPost.createdById === user?.id;
+
+  const handleEditJobPost = () => {
+    router.push("/jobs/[id]/edit", `/jobs/${id}/edit`);
+  };
+
   return (
     <Box>
-      {title && (
-        <Heading size="lg" mb="4">
-          {title}
-        </Heading>
-      )}
+      <Box
+        display="flex"
+        justifyContent="space-between"
+        alignItems="center"
+        mb="4"
+      >
+        {title && <Heading size="lg">{title}</Heading>}
+        <Box>
+          {canEditJobPost && (
+            <>
+              <Button
+                display={["none", "none", "none", "inline-flex"]}
+                onClick={handleEditJobPost}
+                variant="ghost"
+                size="sm"
+                leftIcon={<Icon as={FaEdit} />}
+              >
+                Edit job post
+              </Button>
+              <IconButton
+                aria-label="Edit job post"
+                icon={<Icon as={FaEdit} />}
+                size="sm"
+                variant="ghost"
+                onClick={handleEditJobPost}
+                display={["inline-flex", "inline-flex", "inline-flex", "none"]}
+              />
+            </>
+          )}
+        </Box>
+      </Box>
       <List spacing={2}>
         <ListItem display="flex" alignItems="center">
           <ListIcon as={FaBriefcase} color={"primary.400"} />
@@ -68,7 +114,7 @@ const JobPost: FC<Props> = ({ jobPost, isPreview = false }) => {
           <Text>
             {"Posted "}
             {formatRelative(
-              isPreview
+              !createdAt
                 ? sub(new Date(), { days: 6 })
                 : new Date(createdAt as unknown as string),
               new Date()

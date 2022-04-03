@@ -15,6 +15,17 @@ export default class JobPostService {
     return data;
   }
 
+  public static async updateJobPost(id: string, jobPostData: Partial<JobPost>) {
+    const { data } = await axios.patch<JobPost>(
+      `/api/job-posts/${id}`,
+      jobPostData
+    );
+
+    queryClient.invalidateQueries("/api/job-posts");
+
+    return data;
+  }
+
   public static useJobPosts(
     query: PaginatedPageQuery,
     filters: JobPostFilters,
