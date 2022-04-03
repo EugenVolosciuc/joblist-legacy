@@ -1,25 +1,15 @@
 import type { NextApiRequest, NextApiResponse } from "next";
 
-import prisma from "config/prisma";
+import modifyUser from "api/handlers/users/modifyUser";
+import getUserById from "api/handlers/users/getUserById";
+import notFound from "api/handlers/notFound";
 
 export default async (req: NextApiRequest, res: NextApiResponse) => {
-  const { id } = req.query;
-
   if (req.method === "GET") {
-    const user = await prisma.user.findUnique({
-      where: { id: id as string },
-      include: { company: true },
-    });
-
-    res.json(user);
+    return await getUserById(req, res);
   } else if (req.method === "PATCH") {
-    const user = await prisma.user.update({
-      where: { id: id as string },
-      data: req.body,
-    });
-
-    return res.json(user);
+    return await modifyUser(req, res);
   } else {
-    return res.status(404).json({ message: "Route not found" });
+    return notFound(res);
   }
 };

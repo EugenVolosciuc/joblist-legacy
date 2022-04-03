@@ -65,11 +65,6 @@ const AuthedMenu = () => {
           <Text>{user?.username}</Text>
         </MenuButton>
         <MenuList>
-          <Link href="/jobs/favourites" passHref>
-            <MenuItem as="a" icon={<Icon as={FaBookmark} mt="1.5" />}>
-              Saved jobs
-            </MenuItem>
-          </Link>
           <Link href="/settings" passHref>
             <MenuItem as="a" icon={<Icon as={FaCog} mt="1.5" />}>
               Settings

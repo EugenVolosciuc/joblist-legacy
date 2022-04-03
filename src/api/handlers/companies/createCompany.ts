@@ -3,14 +3,14 @@ import type { NextApiRequest, NextApiResponse } from "next";
 import prisma from "config/prisma";
 import { serverErrorHandler } from "utils/error-handlers";
 
-const createJobPost = async (req: NextApiRequest, res: NextApiResponse) => {
+const createCompany = async (req: NextApiRequest, res: NextApiResponse) => {
   try {
-    const jobPost = await prisma.jobPost.create({ data: req.body });
+    const company = await prisma.company.create({ data: req.body });
 
-    return res.status(201).json(jobPost);
+    return res.status(201).json(company);
   } catch (error) {
     serverErrorHandler(res, error);
   }
 };
 
-export default createJobPost;
+export default createCompany;

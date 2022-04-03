@@ -6,7 +6,7 @@ import UserService from "services/User";
 const Home: NextPage = () => {
   return (
     <Layout>
-      <p>test</p>
+      <p>Homepage</p>
     </Layout>
   );
 };

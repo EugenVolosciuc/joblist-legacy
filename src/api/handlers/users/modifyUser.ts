@@ -3,17 +3,19 @@ import type { NextApiRequest, NextApiResponse } from "next";
 import prisma from "config/prisma";
 import { serverErrorHandler } from "utils/error-handlers";
 
-const updateJobPost = async (req: NextApiRequest, res: NextApiResponse) => {
+const modifyUser = async (req: NextApiRequest, res: NextApiResponse) => {
+  const { id } = req.query;
+
   try {
-    const jobPost = await prisma.jobPost.update({
-      where: { id: req.query.id as string },
+    const user = await prisma.user.update({
+      where: { id: id as string },
       data: req.body,
     });
 
-    return res.json(jobPost);
+    return res.json(user);
   } catch (error) {
     serverErrorHandler(res, error);
   }
 };
 
-export default updateJobPost;
+export default modifyUser;

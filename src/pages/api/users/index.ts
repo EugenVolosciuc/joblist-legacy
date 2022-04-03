@@ -1,13 +1,12 @@
 import type { NextApiRequest, NextApiResponse } from "next";
 
-import prisma from "config/prisma";
+import createUser from "api/handlers/users/createUser";
+import notFound from "api/handlers/notFound";
 
 export default async (req: NextApiRequest, res: NextApiResponse) => {
   if (req.method === "POST") {
-    const user = await prisma.user.create({ data: req.body });
-
-    return res.json(user);
+    return await createUser(req, res);
   } else {
-    return res.status(404).json({ message: "Route not found" });
+    return notFound(res);
   }
 };

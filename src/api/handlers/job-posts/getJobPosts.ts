@@ -2,6 +2,7 @@ import type { NextApiRequest, NextApiResponse } from "next";
 
 import prisma from "config/prisma";
 import { paginationToOffset } from "utils/pagination";
+import { serverErrorHandler } from "utils/error-handlers";
 
 const jobPostPropertiesToFetch = {
   id: true,
@@ -22,28 +23,32 @@ const jobPostPropertiesToFetch = {
 };
 
 const getJobPosts = async (req: NextApiRequest, res: NextApiResponse) => {
-  const query = {
-    page: parseInt((req.query.page as string) || "1", 10),
-    pageSize: parseInt((req.query.pageSize as string) || "15", 10),
-    filters: JSON.parse((req.query.filters as string) || "{}"),
-  };
+  try {
+    const query = {
+      page: parseInt((req.query.page as string) || "1", 10),
+      pageSize: parseInt((req.query.pageSize as string) || "15", 10),
+      filters: JSON.parse((req.query.filters as string) || "{}"),
+    };
 
-  const { skip, take } = paginationToOffset(query);
+    const { skip, take } = paginationToOffset(query);
 
-  const jobPostsCount = await prisma.jobPost.count({
-    where: query.filters,
-  });
+    const jobPostsCount = await prisma.jobPost.count({
+      where: query.filters,
+    });
 
-  const jobPosts = await prisma.jobPost.findMany({
-    skip,
-    take,
-    select: jobPostPropertiesToFetch,
-    where: query.filters,
-  });
+    const jobPosts = await prisma.jobPost.findMany({
+      skip,
+      take,
+      select: jobPostPropertiesToFetch,
+      where: query.filters,
+    });
 
-  const pages = Math.ceil(jobPostsCount / query.pageSize);
+    const pages = Math.ceil(jobPostsCount / query.pageSize);
 
-  return res.json({ data: jobPosts, query: { ...query, pages } });
+    return res.json({ data: jobPosts, query: { ...query, pages } });
+  } catch (error) {
+    serverErrorHandler(res, error);
+  }
 };
 
 export default getJobPosts;
