@@ -26,7 +26,9 @@ export const serverErrorHandler = (res: NextApiResponse, error: any) => {
       return res.status(500).json({ message: error.message, error: error });
     }
   } else if (error instanceof Prisma.PrismaClientValidationError) {
-    return res.status(500).json({ message: "A Prisma error has occured" });
+    return res
+      .status(500)
+      .json({ message: "A Prisma error has occured", error: error.message });
   } else {
     return res.status(500).json({ message: error.message, error: error });
   }

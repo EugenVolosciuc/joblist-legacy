@@ -1,5 +1,5 @@
-import { FC } from "react";
-import { JobPost as TJobPost, Company, User } from "@prisma/client";
+import { FC, useState } from "react";
+import { JobPost as TJobPost, Company, User, UserRole } from "@prisma/client";
 import {
   Box,
   Heading,
@@ -12,6 +12,7 @@ import {
   Button,
   Icon,
   IconButton,
+  useToast,
 } from "@chakra-ui/react";
 import { formatRelative, sub } from "date-fns";
 import {
@@ -20,6 +21,7 @@ import {
   FaClock,
   FaEdit,
   FaMapMarkedAlt,
+  FaMapPin,
   FaMoneyBill,
   FaStar,
 } from "react-icons/fa";
@@ -30,6 +32,9 @@ import { useAuth } from "services/User";
 import { useRouter } from "next/router";
 import salaryPeriodMapping from "constants/mappings/salaryPeriod";
 import salaryTypeMapping from "constants/mappings/salaryType";
+import JobPostService from "services/JobPost";
+import { clientErrorHandler } from "utils/error-handlers";
+import appConfig from "config/app";
 
 type Props = {
   jobPost: Partial<TJobPost> & { company: Company; createdBy: User };
@@ -43,12 +48,28 @@ const JobPost: FC<Props> = ({
   showActions = true,
 }) => {
   showActions = isPreview ? false : showActions;
+
+  const [changingFavourite, setChangingFavourite] = useState(false);
   const { user } = useAuth();
   const router = useRouter();
+  const toast = useToast();
+
+  const canFavourite = user?.role === UserRole.JOB_SEEKER;
+
+  const {
+    data: jobPostIsFavourited,
+    isFetched: checkedIfJobPostWasFavourited,
+  } = JobPostService.useJobPostIsFavouritedCheck(
+    jobPost.id as string,
+    user?.id as string,
+    [canFavourite]
+  );
+
   const {
     company,
     createdAt,
     createdBy,
+    createdById,
     currency,
     description,
     id,
@@ -69,10 +90,38 @@ const JobPost: FC<Props> = ({
     currency &&
     (salary || minSalary || maxSalary);
 
-  const canEditJobPost = jobPost.createdById === user?.id;
+  const canEditJobPost = createdById === user?.id;
 
   const handleEditJobPost = () => {
     router.push("/jobs/[id]/edit", `/jobs/${id}/edit`);
+  };
+
+  const handleFavourite = async (action: "favourite" | "unfavourite") => {
+    try {
+      setChangingFavourite(true);
+
+      const willFavourite = action === "favourite";
+
+      if (willFavourite) {
+        await JobPostService.favouriteJobPost(id as string, user?.id as string);
+      } else {
+        await JobPostService.unfavouriteJobPost(
+          id as string,
+          user?.id as string
+        );
+      }
+
+      toast({
+        title: `Job post ${willFavourite ? "pinned" : "unpinned"}`,
+        status: "success",
+        ...appConfig.componentVariants.toast,
+      });
+
+      setChangingFavourite(false);
+    } catch (error) {
+      setChangingFavourite(false);
+      clientErrorHandler(error);
+    }
   };
 
   return (
@@ -85,6 +134,21 @@ const JobPost: FC<Props> = ({
       >
         {title && <Heading size="lg">{title}</Heading>}
         <Box>
+          {checkedIfJobPostWasFavourited && (
+            <Button
+              isLoading={changingFavourite}
+              size="sm"
+              variant="ghost"
+              leftIcon={<Icon as={FaMapPin} />}
+              onClick={() =>
+                handleFavourite(
+                  jobPostIsFavourited ? "unfavourite" : "favourite"
+                )
+              }
+            >
+              {jobPostIsFavourited ? "Unpin" : "Pin"}
+            </Button>
+          )}
           {canEditJobPost && (
             <>
               <Button

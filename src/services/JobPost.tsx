@@ -32,6 +32,38 @@ export default class JobPostService {
     queryClient.invalidateQueries("/api/job-posts");
   }
 
+  public static async favouriteJobPost(jobPostId: string, userId: string) {
+    await axios.patch(`/api/job-posts/${jobPostId}/favourite?userId=${userId}`);
+
+    queryClient.invalidateQueries(["/api/job-posts", jobPostId, userId]);
+  }
+
+  public static async unfavouriteJobPost(jobPostId: string, userId: string) {
+    await axios.delete(
+      `/api/job-posts/${jobPostId}/favourite?userId=${userId}`
+    );
+
+    queryClient.invalidateQueries(["/api/job-posts", jobPostId, userId]);
+  }
+
+  public static useJobPostIsFavouritedCheck(
+    jobPostId: string,
+    userId: string,
+    dependencies?: boolean[]
+  ) {
+    const enabled = dependencies
+      ? dependencies.every((dependency) => !!dependency)
+      : true;
+
+    const { isLoading, error, data, isFetched } = useQuery(
+      ["/api/job-posts", jobPostId, userId],
+      this._jobPostIsFavouritedCheck,
+      { enabled }
+    );
+
+    return { isLoading, error, data: data?.data, isFetched };
+  }
+
   public static useJobPosts(
     query: PaginatedPageQuery,
     filters: JobPostFilters,
@@ -40,6 +72,7 @@ export default class JobPostService {
     const enabled = dependencies
       ? dependencies.every((dependency) => !!dependency)
       : true;
+
     const { isLoading, error, data } = useQuery(
       ["/api/job-posts", query, filters],
       this._getJobPosts,
@@ -61,6 +94,16 @@ export default class JobPostService {
       error,
       data: data as JobPost & { company: Company; createdBy: User },
     };
+  }
+
+  private static async _jobPostIsFavouritedCheck({
+    queryKey,
+  }: QueryFunctionContext<string[]>) {
+    const [_key, jobPostId, userId] = queryKey;
+
+    return await axios.get<boolean>(
+      `${_key}/${jobPostId}/favourite?userId=${userId}`
+    );
   }
 
   private static async _getJobPosts({

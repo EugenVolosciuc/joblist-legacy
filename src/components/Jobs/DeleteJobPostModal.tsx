@@ -32,7 +32,7 @@ const DeleteJobPostModal: FC<Props> = ({ jobPostID, onClose }) => {
         await JobPostService.removeJobPost(jobPostID);
 
         toast({
-          description: "Job post deleted",
+          title: "Job post deleted",
           status: "success",
           ...appConfig.componentVariants.toast,
         });
